@@ -2,6 +2,7 @@
 #include <stdbool.h>
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 
 #include "game.h"
 
@@ -10,7 +11,13 @@ int main(int argc, char** argv) {
     SDL_Window* window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_RESIZABLE);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
+    TTF_Init();
+
     game_t* game = game_create(renderer);
+
+    printf("created game!");
+
+    const Uint8* const keyboard_state = SDL_GetKeyboardState(NULL);
 
     uint64_t performance_frequency = SDL_GetPerformanceFrequency();
     uint64_t performance_counter = SDL_GetPerformanceCounter();
@@ -24,10 +31,21 @@ int main(int argc, char** argv) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT)
                 close_requested = true;
+            if (event.type == SDL_KEYDOWN)
+                game_input_key_down(game, event.key.keysym.scancode);
         }
 
+        game_keyboard_state(game, keyboard_state);
         game_update(game, delta_time, global_time);
         game_render(game);
+
+        global_time += delta_time;
+        uint64_t performance_counter_at_end = SDL_GetPerformanceCounter();
+        uint64_t elapsed = performance_counter_at_end - performance_counter;
+
+        delta_time = (float) elapsed / (float) performance_frequency;
+
+        performance_counter = performance_counter_at_end;
     } 
     
 }
