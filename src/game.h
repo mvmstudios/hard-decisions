@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h> 
-#include <conio.h>
 
 #include <SDL2/SDL.h>
 
