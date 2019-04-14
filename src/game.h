@@ -145,6 +145,10 @@ void game_keyboard_state(game_t* game, const Uint8* const keyboard_state) {
     
 }
 
+void game_event(SDL_Event* event) {
+    
+}
+
 void game_render(game_t* game) {
     SDL_SetRenderDrawColor(game->renderer, game->current_background_color->r, game->current_background_color->g, game->current_background_color->b, 255);
     SDL_RenderClear(game->renderer);
