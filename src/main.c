@@ -6,9 +6,12 @@
 
 #include "game.h"
 
+int window_width = 800;
+int window_height = 600;
+
 int main(int argc, char** argv) {
     SDL_Init(SDL_INIT_EVERYTHING);
-    SDL_Window* window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_RESIZABLE);
+    SDL_Window* window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_width, window_height, SDL_WINDOW_RESIZABLE);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
     TTF_Init();
@@ -33,6 +36,12 @@ int main(int argc, char** argv) {
                 close_requested = true;
             if (event.type == SDL_KEYDOWN)
                 game_input_key_down(game, event.key.keysym.scancode);
+            if (event.type == SDL_WINDOWEVENT) {
+                if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+                    window_width = event.window.data1;
+                    window_height = event.window.data2;
+                }
+            }
         }
 
         game_keyboard_state(game, keyboard_state);

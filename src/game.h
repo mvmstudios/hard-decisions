@@ -6,6 +6,9 @@
 
 #include "text_renderer.h"
 
+extern int window_width;
+extern int window_height;
+
 typedef struct {
     int r, g, b;
     char* name;
@@ -47,7 +50,8 @@ typedef enum {
 
 typedef struct {
     SDL_Renderer* renderer;
-    text_renderer_t* text_renderer;
+    text_renderer_t* color_text_renderer;
+    text_renderer_t* points_text_renderer;
 
     color_t* current_background_color;
     color_t* current_displayed_color;
@@ -69,23 +73,30 @@ void game_next_color(game_t* game) {
         game->current_displayed_color = get_random_color();
     }
 
-    text_renderer_set_text(game->text_renderer, game->current_displayed_color->name);
+    text_renderer_set_text(game->color_text_renderer, game->current_displayed_color->name);
 
     game->current_guess = GUESS_NONE;
 
     game->time_since_last_change = 0;
+
+    game->points++;
+
+    char buffer[1];
+    sprintf(buffer, "%d", game->points);
+
+    text_renderer_set_text(game->points_text_renderer, buffer);
 }
 
 game_t* game_create(SDL_Renderer* renderer) {
     game_t* game = malloc(sizeof(game_t));
 
     game->renderer = renderer;
-    game->text_renderer = text_renderer_create(renderer, "resources/fonts/carbon bl.ttf", 16, SDL_WHITE_COLOR);
-    printf("created text_renderer YAY!\n");
+    game->color_text_renderer = text_renderer_create(renderer, "resources/fonts/carbon bl.ttf", 16, SDL_WHITE_COLOR);
+    game->points_text_renderer = text_renderer_create(renderer, "resources/fonts/carbon bl.ttf", 16, SDL_WHITE_COLOR);
+
+    game->points = -1;
 
     game_next_color(game);
-
-    game->points = 0;
 
     return game;
 }
@@ -96,33 +107,15 @@ void game_lose(game_t* game) {
 
 void game_update(game_t* game, float delta_time, double global_time) {
     game->time_since_last_change += delta_time;
-    printf("%f\n", game->time_since_last_change);
+   // printf("%f\n", game->time_since_last_change);
     
-    if (game->time_since_last_change >= 5 && game->current_guess == GUESS_NONE) {
+    if (game->time_since_last_change >= 5 && game->current_guess == GUESS_NONE)
         game_lose(game);
-    }
 
     if (game->current_guess != GUESS_NONE) {
-        if (game->current_guess == GUESS_RIGHT) {
-            if (colors_equal(game->current_background_color, game->current_displayed_color))
-                game_next_color(game);
-            else
-                game_lose(game);
-        }
-
-        if (game->current_guess == GUESS_WRONG) {
-            if (colors_equal(game->current_background_color, game->current_displayed_color))
-                game_lose(game);
-            else
-                game_next_color(game);
-        }
-    }
-
-    if (game->current_guess != GUESS_NONE) {
-        if ((game->current_guess == GUESS_RIGHT && colors_equal(game->current_background_color, game->current_displayed_color)) || (game->current_guess == GUESS_WRONG && !colors_equal(game->current_background_color, game->current_displayed_color))) {
+        if ((game->current_guess == GUESS_RIGHT && colors_equal(game->current_background_color, game->current_displayed_color)) || (game->current_guess == GUESS_WRONG && !colors_equal(game->current_background_color, game->current_displayed_color)))
             game_next_color(game);
-            game->points++;
-        } else
+        else
             game_lose(game);
     }
 }
@@ -147,7 +140,11 @@ void game_render(game_t* game) {
     SDL_SetRenderDrawColor(game->renderer, game->current_background_color->r, game->current_background_color->g, game->current_background_color->b, 255);
     SDL_RenderClear(game->renderer);
 
-    text_renderer_render(game->text_renderer, (SDL_Rect) {0, 0, 300, 100});
+    printf("%d\n", window_width);
+    printf("%d\n", window_height);
+
+    text_renderer_render(game->color_text_renderer, (SDL_Rect) { (window_width / 2) - ((window_width / 6)), (window_height / 2) - ((window_height / 8)), window_width / 3, window_height / 4 });
+    text_renderer_render(game->points_text_renderer, (SDL_Rect) { (window_width / 2) - ((window_width / 20)), (window_height / 2) - ((window_height / 2)), window_width / 10, window_width / 5 });
 
     SDL_RenderPresent(game->renderer);
 }
