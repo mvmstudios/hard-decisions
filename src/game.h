@@ -15,9 +15,16 @@ typedef struct {
 color_t colors[] = {
     { 255, 0, 0, "Red" },
     { 0, 255, 0, "Green" },
+    { 0, 0, 0, "Black" },
+    { 139, 69, 19, "Brown" },
+    { 255, 20, 147, "Pink" },
+    { 125, 38, 205, "Purple" }, 
+    { 255, 255, 0, "Yellow" },
+    { 37, 189, 177, "Cyan" },
+    { 255, 127, 0, "Orange" },
     { 0, 0, 255, "Blue" }
 }; 
-int colors_size = 3;
+int colors_size = 10;
 
 unsigned int seed;
 
@@ -26,7 +33,7 @@ color_t* get_random_color() {
 
     srand(seed + rand() + time(0));
 
-    return &colors[rand() % 3];
+    return &colors[rand() % colors_size];
 }
 
 bool colors_equal(color_t* color_x, color_t* color_y) {
@@ -52,8 +59,14 @@ typedef struct {
 } game_t;
 
 void game_next_color(game_t* game) {
-    game->current_background_color = get_random_color();
-    game->current_displayed_color = get_random_color();
+    if (rand() % 100 > 40) {
+        color_t* color = get_random_color();
+        game->current_background_color = color;
+        game->current_displayed_color = color;
+    } else {
+        game->current_background_color = get_random_color();
+        game->current_displayed_color = get_random_color();
+    }
 
     text_renderer_set_text(game->text_renderer, game->current_displayed_color->name);
 
