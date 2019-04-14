@@ -55,6 +55,8 @@ typedef struct {
     guess_t current_guess;
 
     float time_since_last_change;
+
+    int points;
 } game_t;
 
 void game_next_color(game_t* game) {
@@ -82,6 +84,8 @@ game_t* game_create(SDL_Renderer* renderer) {
     printf("created text_renderer YAY!\n");
 
     game_next_color(game);
+
+    game->points = 0;
 
     return game;
 }
@@ -117,6 +121,7 @@ void game_update(game_t* game, float delta_time, double global_time) {
     if (game->current_guess != GUESS_NONE) {
         if ((game->current_guess == GUESS_RIGHT && colors_equal(game->current_background_color, game->current_displayed_color)) || (game->current_guess == GUESS_WRONG && !colors_equal(game->current_background_color, game->current_displayed_color))) {
             game_next_color(game);
+            game->points++;
         } else
             game_lose(game);
     }
