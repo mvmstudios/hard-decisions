@@ -15,16 +15,11 @@ typedef struct {
 } text_renderer_t;
 
 void text_renderer_set_text(text_renderer_t* renderer, char* text) {
-     printf("XD\n");
     renderer->text = text;
-     printf("SD\n");
 
-    SDL_Surface* surface = TTF_RenderText_Solid(renderer->font, text, renderer->font_color);
-     printf("wd\n");
+    SDL_Surface* surface = TTF_RenderText_Solid(renderer->font, renderer->text, renderer->font_color);
     renderer->texture = SDL_CreateTextureFromSurface(renderer->sdl_renderer, surface);
-     printf("DewKW\n");
     SDL_FreeSurface(surface);
-     printf("dwa\n");
 }
 
 void text_renderer_update_font(text_renderer_t* renderer, char* path_to_font, int font_size) {
@@ -53,6 +48,5 @@ text_renderer_t* text_renderer_create(SDL_Renderer* sdl_renderer, char* path_to_
 
     text_renderer_update_font(renderer, path_to_font, font_size);
     
-    printf("setted text\n");
     return renderer;
 }
