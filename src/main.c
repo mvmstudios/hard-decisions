@@ -9,16 +9,17 @@
 int window_width = 800;
 int window_height = 600;
 
+int mouse_x;
+int mouse_y;
+
 int main(int argc, char** argv) {
     SDL_Init(SDL_INIT_EVERYTHING);
-    SDL_Window* window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_width, window_height, SDL_WINDOW_RESIZABLE);
+    SDL_Window* window = SDL_CreateWindow("Help plis :C", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_width, window_height, SDL_WINDOW_RESIZABLE);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
     TTF_Init();
 
     game_t* game = game_create(renderer);
-
-    printf("created game!");
 
     const Uint8* const keyboard_state = SDL_GetKeyboardState(NULL);
 
@@ -43,6 +44,8 @@ int main(int argc, char** argv) {
                 }
             }
         }
+
+        SDL_GetMouseState(&mouse_x, &mouse_y);
 
         game_keyboard_state(game, keyboard_state);
         game_update(game, delta_time, global_time);
