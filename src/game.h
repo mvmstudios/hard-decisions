@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h> 
-#include <conio.h>
 
 #include <SDL2/SDL.h>
 
@@ -113,6 +112,13 @@ void game_update(game_t* game, float delta_time, double global_time) {
             else
                 game_next_color(game);
         }
+    }
+
+    if (game->current_guess != GUESS_NONE) {
+        if ((game->current_guess == GUESS_RIGHT && colors_equal(game->current_background_color, game->current_displayed_color)) || (game->current_guess == GUESS_WRONG && !colors_equal(game->current_background_color, game->current_displayed_color))) {
+            game_next_color(game);
+        } else
+            game_lose(game);
     }
 }
 
