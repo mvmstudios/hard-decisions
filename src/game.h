@@ -74,6 +74,7 @@ typedef struct {
     int points;
 
     button_t* menu_start_button;
+    button_t* lost_restart_button;
 } game_t;
 
 void game_next_color(game_t* game) {
@@ -115,21 +116,40 @@ game_t* game_create(SDL_Renderer* renderer) {
 
     game_next_color(game);
 
-    game->menu_start_button = button_create(game->renderer, "START", window_width / 2 - 25, window_height / 2 - 10, 200, 160);
-    int width = window_width / 5;
-    int height = window_height / 7;
+    int button_width = window_width / 5;
+    int button_height = window_height / 7;
 
-    game->menu_start_button->x = (window_width / 2) - (width / 2);
-    game->menu_start_button->y = (window_height / 2) - (height / 2);
+    //// START BUTTON
 
-    game->menu_start_button->width = width;
-    game->menu_start_button->height = height;
+    game->menu_start_button = button_create(game->renderer, "START", 0, 0, 0, 0);
+
+    game->menu_start_button->x = (window_width / 2) - (button_width / 2);
+    game->menu_start_button->y = (window_height / 2) - (button_height / 2);
+
+    game->menu_start_button->width = button_width;
+    game->menu_start_button->height = button_height;
+
+    //// RESTART BUTTON
+
+    game->lost_restart_button = button_create(game->renderer, "RESTART", 0, 0, 0, 0);
+
+    game->lost_restart_button->x = (window_width / 2) - (button_width / 2);
+    game->lost_restart_button->y = (window_height / 2) - (button_height / 2);
+
+    game->lost_restart_button->width = button_width;
+    game->lost_restart_button->height = button_height;
+
+    ////
 
     return game;
 }
 
 void game_lose(game_t* game) {
-    exit(-1);
+    char buffer[50];
+    sprintf(buffer, "Sorry boii. Your score: %d", game->points);
+
+    text_renderer_set_text(game->points_text_renderer, buffer);
+    game->state = GAME_STATE_LOST;
 }
 
 void game_update(game_t* game, float delta_time, double global_time) {
@@ -157,7 +177,10 @@ void game_update(game_t* game, float delta_time, double global_time) {
 }
 
 void game_restart(game_t* game) {
-    // @TODO
+    game->points = -1;
+    game_next_color(game);
+
+    game->state = GAME_STATE_INGAME;
 }
 
 void game_input_key_down(game_t* game, SDL_Scancode scancode) {
@@ -186,16 +209,44 @@ void game_event(game_t* game, SDL_Event* event) {
         }
     }
 
+    if (event->type == SDL_MOUSEBUTTONDOWN) {
+        if (event->button.button == SDL_BUTTON_LEFT) {
+            if (game->state == GAME_STATE_MENU) {
+                if (button_mouse_over(game->menu_start_button)) {
+                    game->state = GAME_STATE_INGAME;
+                }
+            }
+
+            if (game->state == GAME_STATE_LOST) {
+                if (button_mouse_over(game->lost_restart_button)) {
+                    game_restart(game);
+                }
+            }
+        }
+    }
+
     if (event->type == SDL_WINDOWEVENT) {
         if (event->window.event == SDL_WINDOWEVENT_RESIZED) {
-            int width = window_width / 5;
-            int height = window_height / 7;
+            int button_width = window_width / 5;
+            int button_height = window_height / 7;
 
-            game->menu_start_button->x = (window_width / 2) - (width / 2);
-            game->menu_start_button->y = (window_height / 2) - (height / 2);
+            //// START BUTTON
 
-            game->menu_start_button->width = width;
-            game->menu_start_button->height = height;
+            game->menu_start_button->x = (window_width / 2) - (button_width / 2);
+            game->menu_start_button->y = (window_height / 2) - (button_height / 2);
+
+            game->menu_start_button->width = button_width;
+            game->menu_start_button->height = button_height;
+
+            //// RESTART BUTTON
+
+            game->lost_restart_button->x = (window_width / 2) - (button_width / 2);
+            game->lost_restart_button->y = (window_height / 2) - (button_height / 2);
+
+            game->lost_restart_button->width = button_width;
+            game->lost_restart_button->height = button_height;
+
+            ////
         }
     }
 }
@@ -212,10 +263,17 @@ void game_render(game_t* game) {
     if (game->state == GAME_STATE_MENU) {
         SDL_SetRenderDrawColor(game->renderer, 234, 232, 12, 255);
         SDL_RenderClear(game->renderer);
+
         button_render(game->menu_start_button);
     }
 
-    if (game->state == GAME_STATE_LOST) {}
+    if (game->state == GAME_STATE_LOST) {
+        SDL_SetRenderDrawColor(game->renderer, 255, 50, 50, 255);
+        SDL_RenderClear(game->renderer);
+
+        text_renderer_render(game->points_text_renderer, (SDL_Rect) { (window_width / 2) - ((window_width / 4)), (window_height / 2) - ((window_height / 2)), window_width / 2, window_width / 5 });
+        button_render(game->lost_restart_button);
+    }
 
     SDL_RenderPresent(game->renderer);
 }
