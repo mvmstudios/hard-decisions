@@ -1,3 +1,6 @@
+#ifndef TEXT_RENDERER_H_
+#define TEXT_RENDERER_H_
+
 #include <stdlib.h>
 
 #include <SDL2/SDL_ttf.h>
@@ -50,3 +53,5 @@ text_renderer_t* text_renderer_create(SDL_Renderer* sdl_renderer, char* path_to_
     
     return renderer;
 }
+
+#endif

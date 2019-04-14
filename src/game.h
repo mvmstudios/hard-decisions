@@ -1,10 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <time.h> 
 
 #include <SDL2/SDL.h>
 
 #include "text_renderer.h"
+#include "button.h"
 
 extern int window_width;
 extern int window_height;
@@ -54,8 +56,12 @@ typedef enum {
     GAME_STATE_INGAME
 } game_state_t;
 
+struct game_menu_t;
+
 typedef struct {
     SDL_Renderer* renderer;
+    struct game_menu_t* menu;
+
     text_renderer_t* color_text_renderer;
     text_renderer_t* points_text_renderer;
 
@@ -69,6 +75,8 @@ typedef struct {
     float time_since_last_change;
 
     int points;
+
+    button_t* menu_start_button;
 } game_t;
 
 void game_next_color(game_t* game) {
@@ -99,6 +107,8 @@ game_t* game_create(SDL_Renderer* renderer) {
     game_t* game = malloc(sizeof(game_t));
 
     game->renderer = renderer;
+   // game->menu = game_menu_create(game);
+
     game->color_text_renderer = text_renderer_create(renderer, "resources/fonts/carbon bl.ttf", 16, SDL_WHITE_COLOR);
     game->points_text_renderer = text_renderer_create(renderer, "resources/fonts/carbon bl.ttf", 16, SDL_WHITE_COLOR);
 
@@ -108,6 +118,8 @@ game_t* game_create(SDL_Renderer* renderer) {
 
     game_next_color(game);
 
+    game->menu_start_button = button_create(game->renderer, "START", 0, 0, 50, 20);
+
     return game;
 }
 
@@ -116,18 +128,31 @@ void game_lose(game_t* game) {
 }
 
 void game_update(game_t* game, float delta_time, double global_time) {
-    game->time_since_last_change += delta_time;
-   // printf("%f\n", game->time_since_last_change);
-    
-    if (game->time_since_last_change >= 5 && game->current_guess == GUESS_NONE)
-        game_lose(game);
-
-    if (game->current_guess != GUESS_NONE) {
-        if ((game->current_guess == GUESS_RIGHT && colors_equal(game->current_background_color, game->current_displayed_color)) || (game->current_guess == GUESS_WRONG && !colors_equal(game->current_background_color, game->current_displayed_color)))
-            game_next_color(game);
-        else
+    if (game->state == GAME_STATE_INGAME) {
+        game->time_since_last_change += delta_time;
+    // printf("%f\n", game->time_since_last_change);
+        
+        if (game->time_since_last_change >= 5 && game->current_guess == GUESS_NONE)
             game_lose(game);
+
+        if (game->current_guess != GUESS_NONE) {
+            if ((game->current_guess == GUESS_RIGHT && colors_equal(game->current_background_color, game->current_displayed_color)) || (game->current_guess == GUESS_WRONG && !colors_equal(game->current_background_color, game->current_displayed_color)))
+                game_next_color(game);
+            else
+                game_lose(game);
+        }
     }
+
+    if (game->state == GAME_STATE_MENU) {
+    }
+
+    if (game->state == GAME_STATE_LOST) {
+
+    }
+}
+
+void game_restart(game_t* game) {
+    // @TODO
 }
 
 void game_input_key_down(game_t* game, SDL_Scancode scancode) {
@@ -145,16 +170,32 @@ void game_keyboard_state(game_t* game, const Uint8* const keyboard_state) {
     
 }
 
-void game_event(SDL_Event* event) {
-    
+void game_event(game_t* game, SDL_Event* event) {
+    if (game->state == GAME_STATE_MENU) {
+        if (event->type == SDL_MOUSEBUTTONDOWN) {
+            if (event->button.button == SDL_BUTTON_LEFT) {
+                if (button_mouse_over(game->menu_start_button)) {
+                    game->state = GAME_STATE_INGAME;
+                }
+            }
+        }
+    }
 }
 
 void game_render(game_t* game) {
-    SDL_SetRenderDrawColor(game->renderer, game->current_background_color->r, game->current_background_color->g, game->current_background_color->b, 255);
-    SDL_RenderClear(game->renderer);
+    if (game->state == GAME_STATE_INGAME) {
+        SDL_SetRenderDrawColor(game->renderer, game->current_background_color->r, game->current_background_color->g, game->current_background_color->b, 255);
+        SDL_RenderClear(game->renderer);
 
-    text_renderer_render(game->color_text_renderer, (SDL_Rect) { (window_width / 2) - ((window_width / 6)), (window_height / 2) - ((window_height / 8)), window_width / 3, window_height / 4 });
-    text_renderer_render(game->points_text_renderer, (SDL_Rect) { (window_width / 2) - ((window_width / 20)), (window_height / 2) - ((window_height / 2)), window_width / 10, window_width / 5 });
+        text_renderer_render(game->color_text_renderer, (SDL_Rect) { (window_width / 2) - ((window_width / 6)), (window_height / 2) - ((window_height / 8)), window_width / 3, window_height / 4 });
+        text_renderer_render(game->points_text_renderer, (SDL_Rect) { (window_width / 2) - ((window_width / 20)), (window_height / 2) - ((window_height / 2)), window_width / 10, window_width / 5 });
+    }
+
+    if (game->state == GAME_STATE_MENU) {
+        button_render(game->menu_start_button);
+    }
+
+    if (game->state == GAME_STATE_LOST) {}
 
     SDL_RenderPresent(game->renderer);
 }

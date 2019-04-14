@@ -33,6 +33,8 @@ int main(int argc, char** argv) {
     while (!close_requested) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
+            game_event(game, &event);
+
             if (event.type == SDL_QUIT)
                 close_requested = true;
             if (event.type == SDL_KEYDOWN)
@@ -43,6 +45,8 @@ int main(int argc, char** argv) {
                     window_height = event.window.data2;
                 }
             }
+
+            
         }
 
         SDL_GetMouseState(&mouse_x, &mouse_y);
