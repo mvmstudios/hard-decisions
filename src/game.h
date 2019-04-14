@@ -121,7 +121,6 @@ void game_update(game_t* game, float delta_time, double global_time) {
 }
 
 void game_input_key_down(game_t* game, SDL_Scancode scancode) {
-    printf("HX\n");
     switch (scancode) {
         case SDL_SCANCODE_RIGHT:
             game->current_guess = GUESS_RIGHT;
