@@ -1,5 +1,7 @@
 all: clean build run
 
+win: clean wbuild run
+
 clean:
 	rm target/trijam15.exe
 
@@ -12,3 +14,8 @@ wbuild:
 run:
 	'./target/trijam15.exe'
 
+windows_release:
+	gcc src/main.c -o release/trijam15.exe -lmingw32 -lm -lSDL2main -lSDL2 -lSDL2_ttf
+
+linux_release:
+	gcc src/main.c -o release/trijam15 -lSDL2 -lSDL2_ttf
