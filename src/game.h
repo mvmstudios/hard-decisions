@@ -67,6 +67,8 @@ typedef struct {
     color_t* current_background_color;
     color_t* current_displayed_color;
 
+    bool started;
+
     guess_t current_guess;
 
     float time_since_last_change;
@@ -112,6 +114,7 @@ game_t* game_create(SDL_Renderer* renderer) {
 
     game->state = GAME_STATE_MENU;
 
+    game->started = false;
     game->points = -1;
 
     game_next_color(game);
@@ -154,10 +157,11 @@ void game_lose(game_t* game) {
 
 void game_update(game_t* game, float delta_time, double global_time) {
     if (game->state == GAME_STATE_INGAME) {
-        game->time_since_last_change += delta_time;
+        if (game->started)
+            game->time_since_last_change += delta_time;
     // printf("%f\n", game->time_since_last_change);
         
-        if (game->time_since_last_change >= 5 && game->current_guess == GUESS_NONE)
+        if (game->time_since_last_change >= 1 && game->current_guess == GUESS_NONE)
             game_lose(game);
 
         if (game->current_guess != GUESS_NONE) {
@@ -177,6 +181,7 @@ void game_update(game_t* game, float delta_time, double global_time) {
 }
 
 void game_restart(game_t* game) {
+    game->started = false;
     game->points = -1;
     game_next_color(game);
 
@@ -184,13 +189,19 @@ void game_restart(game_t* game) {
 }
 
 void game_input_key_down(game_t* game, SDL_Scancode scancode) {
-    switch (scancode) {
-        case SDL_SCANCODE_RIGHT:
-            game->current_guess = GUESS_RIGHT;
-            break;
-        case SDL_SCANCODE_LEFT:
-            game->current_guess = GUESS_WRONG;
-            break;
+    if (game->state == GAME_STATE_INGAME) {
+        switch (scancode) {
+            case SDL_SCANCODE_RIGHT:
+                game->current_guess = GUESS_RIGHT;
+                if (!game->started)
+                    game->started = true;
+                break;
+            case SDL_SCANCODE_LEFT:
+                game->current_guess = GUESS_WRONG;
+                if (!game->started)
+                    game->started = true;
+                break;
+        }
     }
 }
 
