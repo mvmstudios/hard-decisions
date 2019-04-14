@@ -48,10 +48,18 @@ typedef enum {
     GUESS_NONE
 } guess_t;
 
+typedef enum {
+    GAME_STATE_MENU,
+    GAME_STATE_LOST,
+    GAME_STATE_INGAME
+} game_state_t;
+
 typedef struct {
     SDL_Renderer* renderer;
     text_renderer_t* color_text_renderer;
     text_renderer_t* points_text_renderer;
+
+    game_state_t state;
 
     color_t* current_background_color;
     color_t* current_displayed_color;
@@ -94,6 +102,8 @@ game_t* game_create(SDL_Renderer* renderer) {
     game->color_text_renderer = text_renderer_create(renderer, "resources/fonts/carbon bl.ttf", 16, SDL_WHITE_COLOR);
     game->points_text_renderer = text_renderer_create(renderer, "resources/fonts/carbon bl.ttf", 16, SDL_WHITE_COLOR);
 
+    game->state = GAME_STATE_MENU;
+
     game->points = -1;
 
     game_next_color(game);
@@ -121,7 +131,6 @@ void game_update(game_t* game, float delta_time, double global_time) {
 }
 
 void game_input_key_down(game_t* game, SDL_Scancode scancode) {
-    printf("HX\n");
     switch (scancode) {
         case SDL_SCANCODE_RIGHT:
             game->current_guess = GUESS_RIGHT;
@@ -139,9 +148,6 @@ void game_keyboard_state(game_t* game, const Uint8* const keyboard_state) {
 void game_render(game_t* game) {
     SDL_SetRenderDrawColor(game->renderer, game->current_background_color->r, game->current_background_color->g, game->current_background_color->b, 255);
     SDL_RenderClear(game->renderer);
-
-    printf("%d\n", window_width);
-    printf("%d\n", window_height);
 
     text_renderer_render(game->color_text_renderer, (SDL_Rect) { (window_width / 2) - ((window_width / 6)), (window_height / 2) - ((window_height / 8)), window_width / 3, window_height / 4 });
     text_renderer_render(game->points_text_renderer, (SDL_Rect) { (window_width / 2) - ((window_width / 20)), (window_height / 2) - ((window_height / 2)), window_width / 10, window_width / 5 });
