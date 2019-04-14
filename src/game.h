@@ -81,7 +81,7 @@ void game_next_color(game_t* game) {
 
     game->points++;
 
-    char buffer[1];
+    char buffer[5];
     sprintf(buffer, "%d", game->points);
 
     text_renderer_set_text(game->points_text_renderer, buffer);
