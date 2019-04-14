@@ -33,7 +33,6 @@ int main(int argc, char** argv) {
     while (!close_requested) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
-            game_event(game, &event);
 
             if (event.type == SDL_QUIT)
                 close_requested = true;
@@ -46,6 +45,7 @@ int main(int argc, char** argv) {
                 }
             }
 
+            game_event(game, &event);
             
         }
 

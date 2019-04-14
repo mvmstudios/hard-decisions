@@ -41,12 +41,12 @@ bool button_mouse_over(button_t* button) {
 
 void button_render(button_t* button) {
     if (button_mouse_over(button))
-        SDL_SetRenderDrawColor(button->sdl_renderer, 30, 30, 30, 255);
+        SDL_SetRenderDrawColor(button->sdl_renderer, 30, 255, 30, 255);
     else
         SDL_SetRenderDrawColor(button->sdl_renderer, 0, 0, 0, 255);
 
     SDL_Rect rect = { button->x, button->y, button->width, button->height };
-    SDL_RenderDrawRect(button->sdl_renderer, &rect);
+    SDL_RenderFillRect(button->sdl_renderer, &rect);
 
     text_renderer_render(button->text_renderer, rect);
 }

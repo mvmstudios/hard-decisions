@@ -2,6 +2,7 @@
 #define TEXT_RENDERER_H_
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #include <SDL2/SDL_ttf.h>
 

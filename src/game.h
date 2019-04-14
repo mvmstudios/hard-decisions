@@ -56,11 +56,8 @@ typedef enum {
     GAME_STATE_INGAME
 } game_state_t;
 
-struct game_menu_t;
-
 typedef struct {
     SDL_Renderer* renderer;
-    struct game_menu_t* menu;
 
     text_renderer_t* color_text_renderer;
     text_renderer_t* points_text_renderer;
@@ -118,7 +115,15 @@ game_t* game_create(SDL_Renderer* renderer) {
 
     game_next_color(game);
 
-    game->menu_start_button = button_create(game->renderer, "START", 0, 0, 50, 20);
+    game->menu_start_button = button_create(game->renderer, "START", window_width / 2 - 25, window_height / 2 - 10, 200, 160);
+    int width = window_width / 5;
+    int height = window_height / 7;
+
+    game->menu_start_button->x = (window_width / 2) - (width / 2);
+    game->menu_start_button->y = (window_height / 2) - (height / 2);
+
+    game->menu_start_button->width = width;
+    game->menu_start_button->height = height;
 
     return game;
 }
@@ -180,6 +185,19 @@ void game_event(game_t* game, SDL_Event* event) {
             }
         }
     }
+
+    if (event->type == SDL_WINDOWEVENT) {
+        if (event->window.event == SDL_WINDOWEVENT_RESIZED) {
+            int width = window_width / 5;
+            int height = window_height / 7;
+
+            game->menu_start_button->x = (window_width / 2) - (width / 2);
+            game->menu_start_button->y = (window_height / 2) - (height / 2);
+
+            game->menu_start_button->width = width;
+            game->menu_start_button->height = height;
+        }
+    }
 }
 
 void game_render(game_t* game) {
@@ -192,6 +210,8 @@ void game_render(game_t* game) {
     }
 
     if (game->state == GAME_STATE_MENU) {
+        SDL_SetRenderDrawColor(game->renderer, 234, 232, 12, 255);
+        SDL_RenderClear(game->renderer);
         button_render(game->menu_start_button);
     }
 
