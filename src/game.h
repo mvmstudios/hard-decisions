@@ -160,6 +160,7 @@ void game_update(game_t* game, float delta_time, double global_time) {
         if (game->started)
             game->time_since_last_change += delta_time;
     // printf("%f\n", game->time_since_last_change);
+
         
         if (game->time_since_last_change >= 1 && game->current_guess == GUESS_NONE)
             game_lose(game);
@@ -262,6 +263,23 @@ void game_event(game_t* game, SDL_Event* event) {
     }
 }
 
+void game_render_progess(game_t* game) {
+    if (!game->time_since_last_change)
+        return;
+
+    double width = (double) window_width * game->time_since_last_change;
+    
+    SDL_SetRenderDrawColor(game->renderer, 0, 0, 0, 255);
+    
+    SDL_Rect rect2 = { 0, 0, width, window_height * 0.025 };
+    SDL_RenderFillRect(game->renderer, &rect2);
+    
+    SDL_SetRenderDrawColor(game->renderer, 255, 50, 50, 150);
+
+    SDL_Rect rect = { 0, 0, width, window_height * 0.02 };
+    SDL_RenderFillRect(game->renderer, &rect);
+}
+
 void game_render(game_t* game) {
     if (game->state == GAME_STATE_INGAME) {
         SDL_SetRenderDrawColor(game->renderer, game->current_background_color->r, game->current_background_color->g, game->current_background_color->b, 255);
@@ -269,6 +287,8 @@ void game_render(game_t* game) {
 
         text_renderer_render(game->color_text_renderer, (SDL_Rect) { (window_width / 2) - ((window_width / 6)), (window_height / 2) - ((window_height / 8)), window_width / 3, window_height / 4 });
         text_renderer_render(game->points_text_renderer, (SDL_Rect) { (window_width / 2) - ((window_width / 20)), (window_height / 2) - ((window_height / 2)), window_width / 10, window_width / 5 });
+    
+        game_render_progess(game);
     }
 
     if (game->state == GAME_STATE_MENU) {
