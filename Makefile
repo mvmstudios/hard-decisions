@@ -3,7 +3,7 @@ all: clean build run
 win: clean wbuild run
 
 clean:
-	rm target/trijam15.exe
+	rm -vf target/trijam15.exe
 
 build:
 	gcc -g src/main.c -o target/trijam15.exe -lSDL2 -lSDL2_ttf 
